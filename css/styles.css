@@ -28,7 +28,7 @@
 
 * { box-sizing: border-box; }
 
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; font-size: 106.25%; } /* 17px rem base: 100% zoom ≈ owner's preferred 110% */
 html, body { overflow-x: hidden; }
 
 body {
@@ -37,7 +37,7 @@ body {
   color: var(--choc);
   background: var(--flour);
   line-height: 1.65;
-  font-size: 17px;
+  font-size: 18px;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -262,6 +262,26 @@ img { max-width: 100%; display: block; }
   .hero__inner { grid-template-columns: 1.05fr 1fr; padding: 76px 20px 84px; }
   .hero__seal { right: -18px; bottom: -28px; }
 }
+/* Pin the fold on desktop: header (~71px) + hero + creds strip (~58px) fill the
+   first viewport so the brown band sits at the bottom of the initial screen.
+   min-height only — short/landscape viewports simply scroll, nothing squashes. */
+@media (min-width: 940px) {
+  .hero {
+    display: flex; align-items: center;
+    min-height: calc(100vh - 129px);  /* fallback */
+    min-height: calc(100svh - 129px);
+  }
+  /* Flex centering supplies the breathing room; big fixed paddings would
+     push the creds band below the fold on 800px-tall screens. */
+  .hero__inner { width: 100%; padding-top: 28px; padding-bottom: 28px; }
+  /* Let the framed photo compress on shorter viewports (crops via object-fit)
+     so the hero can actually fit above the fold; floor keeps it presentable. */
+  .hero__media .framed img {
+    max-height: max(360px, calc(100vh - 320px));
+    max-height: max(360px, calc(100svh - 320px));
+    object-fit: cover;
+  }
+}
 
 /* ---------- Credibility strip ---------- */
 .creds {
@@ -320,11 +340,45 @@ img { max-width: 100%; display: block; }
 .section--choc .quote { background: #4a3120; border-color: #5c3f28; color: #f4e8d6; }
 .quote p { font-family: var(--serif); font-size: 1.12rem; font-style: italic; margin: 0 0 12px; }
 .quote .stars { color: #e8b64c; letter-spacing: 2px; }
-.rating-row { display:flex; flex-wrap:wrap; gap: 10px 34px; justify-content:center; margin-top: 8px; }
-.rating-row .rating { text-align:center; }
+.rating-row { display:flex; flex-wrap:wrap; gap: 16px 18px; justify-content:center; margin-top: 8px; }
+.rating-row .rating {
+  text-align:center; text-decoration:none; color: inherit;
+  display:flex; flex-direction:column; justify-content:center;
+  min-width: 128px; padding: 18px 20px;
+  border-radius: var(--radius);
+  background: rgba(232, 182, 76, 0.06);
+  border: 1px solid rgba(232, 182, 76, 0.28);
+  animation: ratingFloat 3.6s ease-in-out infinite;
+  transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease, background-color .25s ease;
+}
+.rating-row .rating:nth-child(1) { animation-delay: 0s; }
+.rating-row .rating:nth-child(2) { animation-delay: .45s; }
+.rating-row .rating:nth-child(3) { animation-delay: .9s; }
+.rating-row .rating:nth-child(4) { animation-delay: 1.35s; }
 .rating-row .rating b { font-family: var(--serif); font-size: 2rem; display:block; color: var(--toast); }
 .section--choc .rating-row .rating b { color: #e8b64c; }
 .rating-row .rating span { font-size:.82rem; text-transform:uppercase; letter-spacing:.1em; }
+.rating-row .rating:hover, .rating-row .rating:focus-visible {
+  transform: translateY(-4px);
+  border-color: rgba(232, 182, 76, 0.65);
+  background: rgba(232, 182, 76, 0.12);
+  box-shadow: 0 10px 26px rgba(232, 182, 76, 0.22);
+  outline: none;
+  animation-play-state: paused;
+}
+.rating-hint {
+  margin: 18px 0 34px; font-size: .85rem; font-style: italic;
+  letter-spacing: .04em; color: var(--gold);
+}
+.section--choc .rating-hint { color: #c9b491; }
+@keyframes ratingFloat {
+  0%, 100% { transform: translateY(0); box-shadow: 0 0 0 rgba(232, 182, 76, 0); }
+  50%      { transform: translateY(-6px); box-shadow: 0 10px 22px rgba(232, 182, 76, 0.18); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rating-row .rating { animation: none; transition: none; }
+  .rating-row .rating:hover, .rating-row .rating:focus-visible { transform: none; }
+}
 
 /* ---------- Visit / info block ---------- */
 .info { display: grid; gap: 28px; grid-template-columns: 1fr; }
